@@ -1,18 +1,23 @@
-const videos = [
-  {
-    date: "2025-10-01",
-    title: "Song One",
-    youtubeId: "VIDEO_ID_1"
-  },
-  {
-    date: "2025-10-02",
-    title: "Song Two",
-    youtubeId: "VIDEO_ID_2"
+const today = new Date().toISOString().slice(0, 10);
+
+firebase.database().ref("songs").once("value", snapshot => {
+  const songs = snapshot.val();
+
+  let todaySong = null;
+
+  for (const id in songs) {
+    if (songs[id].date === today) {
+      todaySong = songs[id];
+      break;
+    }
   }
-];
 
-function getTodayVideo() {
-  const today = new Date().toISOString().slice(0, 10);
-  return videos.find(v => v.date === today) || videos[videos.length - 1];
-}
+  if (!todaySong) {
+    document.body.innerHTML = "<h2>No song scheduled today</h2>";
+    return;
+  }
 
+  document.getElementById("title").textContent = todaySong.title;
+  document.getElementById("video").src =
+    `https://www.youtube.com/embed/${todaySong.youtubeId}`;
+});
