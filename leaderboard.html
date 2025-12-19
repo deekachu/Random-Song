@@ -1,1 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Leaderboard</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+  <h1>Top Rated Videos</h1>
+  <ul id="list"></ul>
+
+<script>
+firebase.initializeApp({
+  apiKey: "YOUR_KEY",
+  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+});
+
+const db = firebase.database();
+const list = document.getElementById("list");
+
+db.ref("ratings").once("value", snapshot => {
+  const data = snapshot.val();
+  const results = [];
+
+  for (const video in data) {
+    const votes = Object.values(data[video]);
+    const avg =
+      votes.reduce((s, v) => s + v.score, 0) / votes.length;
+
+    results.push({ video, avg });
+  }
+
+  results.sort((a, b) => b.avg - a.avg);
+
+  results.forEach(r => {
+    const li = document.createElement("li");
+    li.textContent = `${r.video} — ⭐ ${r.avg.toFixed(2)}`;
+    list.appendChild(li);
+  });
+});
+</script>
+</body>
+</html>
 
